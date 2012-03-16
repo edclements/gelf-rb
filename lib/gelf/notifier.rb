@@ -138,9 +138,25 @@ module GELF
     def notify_with_level!(message_level, *args)
       return unless @enabled
       extract_hash(*args)
-      @hash['level'] = message_level unless message_level.nil?
-      if @hash['level'] >= level
-        @sender.send_datagrams(datagrams_from_hash)
+      m = @hash["short_message"]
+      if m[0..1] == "\n\n"
+        if @message
+          @hash["short_message"] = @message
+          @hash['level'] = message_level unless message_level.nil?
+          if @hash['level'] >= level
+            @sender.send_datagrams(datagrams_from_hash)
+          end
+        end
+        @message = m
+        @message << "<br />" 
+        @level = message_level unless message_level.nil?
+      else
+        @message ||= ""
+        @message << m
+        @message << "<br />"
+        if message_level && (!@level || message_level > @level)
+          @level = message_level
+        end
       end
     end
 

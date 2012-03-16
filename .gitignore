@@ -4,3 +4,4 @@ rdoc/
 tmp/
 
 .DS_Store
+.sw*
